@@ -51,8 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7812d204b1ad96848a37a568378741b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _offset: {x: 0, y: 100}
-  _damageablePosition: {x: 0, y: 0, z: 0}
+  _offset: {x: 0, y: 0, z: 2}
 --- !u!114 &7197382384105144910
 MonoBehaviour:
   m_ObjectHideFlags: 0

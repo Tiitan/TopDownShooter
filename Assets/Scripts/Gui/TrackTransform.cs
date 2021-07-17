@@ -7,7 +7,7 @@ namespace Gui
     public class TrackTransform : MonoBehaviour
     {
         
-        [SerializeField] private Vector2 _offset;
+        [SerializeField] private Vector3 _offset;
         private Transform _transform;
         private IDamageable _damageable;
         private Camera _camera;
@@ -26,9 +26,7 @@ namespace Gui
         
         void Update()
         {
-            Vector3 position = _camera.WorldToScreenPoint (_damageable.Position);
-            position.x += _offset.x;
-            position.y += _offset.y;
+            Vector3 position = _camera.WorldToScreenPoint (_damageable.Position + _offset);
             _transform.position = position;
         }
     }
