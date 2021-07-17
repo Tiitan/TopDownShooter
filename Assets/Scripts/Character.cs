@@ -8,7 +8,7 @@ using ScriptableObjects;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDamageable
+public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDamageable, IResource
 {
     [SerializeField] private float _speed;
     [SerializeField] private float _animationSpeedMultiplier;
@@ -27,13 +27,27 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
 
     [SerializeField] private Animator _animator;
     
+    [SerializeField] private int _energy = 5;
+    [SerializeField] private int _energyRegenDelay = 2; // second per energy point
+    
     private float _healthPoint;
     private CharacterController _characterController;
     private Ability _passiveAbility;
     private Transform _transform;
     private TargetManager _targetManager;
+    private float _energyRegenReferenceTime;
+    private bool _isStopped;
+    private int _maxEnergy;
 
-
+    public int Energy
+    {
+        get => _energy;
+        set
+        {
+            _energy = value;
+            OnPropertyChanged();
+        }
+    }
     
     public float HealthPoint
     {
@@ -69,7 +83,8 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         _transform = transform;
         _characterController = GetComponent<CharacterController>();
         _healthPoint = _maxHealthPoint;
-
+        _maxEnergy = _energy;
+        
         // TODO temporary, create player equipment management
         if (_passiveAbilityObject != null)
             _passiveAbility = Instantiate(_passiveAbilityObject.AbilityPrefab, _transform).GetComponent<Ability>();
@@ -82,6 +97,11 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         LevelManager.Instance.OverlayGuiManager.Register(this);
     }
     float _prevMoveSpeed = 0, _prevMoveAngle = 0;
+
+    void UpdateAbility()
+    {
+        // TODO refactor update
+    }
     
     public void Update()
     {
@@ -94,14 +114,40 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
             (!hasPassiveAbility || _passiveAbility.CanMove || _passiveAbility.Priority < _walkPriority))
         {
             if (hasPassiveAbility && !_passiveAbility.CanMove)
-                _passiveAbility.CancelAbility();
+                _passiveAbility.TryCancel(_walkPriority);
             var motion = Direction * _speed;
             _characterController.Move(motion * Time.deltaTime);
             _transform.rotation = Quaternion.LookRotation(Direction);
 
             moveSpeed = motion.sqrMagnitude * _animationSpeedMultiplier;
+            _isStopped = false;
         }
 
+        // just stopped moving
+        if (!_isStopped && Direction == Vector3.zero)
+        {
+            _isStopped = true;
+            _energyRegenReferenceTime = Time.time;
+        }
+        
+        // regen energy
+        if (_isStopped && Time.time > _energyRegenReferenceTime + _energyRegenDelay)
+        {
+            if (_energy < _maxEnergy)
+            {
+                Energy = _energy + 1;
+                Debug.Log($"[{name}] regen energy: {_energy}/{_maxEnergy}");
+
+            }
+            _energyRegenReferenceTime = Time.time;
+        }
+        
+        // Cancel cast if stop moving and if movement required
+        if (Direction == Vector3.zero && hasPassiveAbility && !_passiveAbility.CanUseImmobile && _passiveAbility.Active)
+        {
+            _passiveAbility.TryCancel(_walkPriority);
+        }
+        
         // look at target if required by ability state
         if (hasPassiveAbility && !_passiveAbility.Ready && _passiveAbility.FaceTarget && (MonoBehaviour)_passiveAbility.Target != null)
         {
@@ -112,13 +158,14 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
 
         //shoot
         if (hasPassiveAbility && _passiveAbility.Ready &&
-            (Direction == Vector3.zero || _passiveAbility.CanStartInMovement))
+            (Direction != Vector3.zero && _passiveAbility.CanStartInMovement ||
+             Direction == Vector3.zero && _passiveAbility.CanUseImmobile))
         {
             ITargetable target = _targetManager.GetCloserEnemy(_transform.position, _team);
             if (target != null)
             {
                 _transform.LookAt(target.Position, Vector3.up);
-                _passiveAbility.UseAbility(target);
+                _passiveAbility.UseAbility(target, this);
             }
         }
 
@@ -141,6 +188,15 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         }
     }
     
+    public bool TryConsumeResource(string resourceType, int cost)
+    {
+        // TODO other resources
+        if (_energy < cost)
+            return false;
+        Energy = _energy - cost;
+        return true;
+    }
+    
     public void Die()
     {
         Debug.Log($"{name} die");
@@ -153,13 +209,13 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         if (HealthPoint > damage)
         {
             HealthPoint -= damage;
-            Debug.Log($"Damage on {name}: {damage} ({_healthPoint}/{_maxHealthPoint})");
+            Debug.Log($"[{name}] Damage: {damage} ({_healthPoint}/{_maxHealthPoint})");
 
         }
         else
         {
             HealthPoint = 0;
-            Debug.Log($"Damage on {name}: {damage} ({_healthPoint}/{_maxHealthPoint})");
+            Debug.Log($"[{name}] Damage: {damage} ({_healthPoint}/{_maxHealthPoint})");
             Die();
         }
     }

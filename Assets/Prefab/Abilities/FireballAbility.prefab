@@ -44,9 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb3d6b2814899c145be618c29a4ae506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _canUseImmobile: 0
   _castPhase:
     _animationTrigger: Cast
-    _duration: 0.5
+    _duration: 1
     _canMove: 1
     _faceTarget: 1
     _priority: 50

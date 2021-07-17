@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Ability))]
@@ -6,7 +7,8 @@ public class AbilityListener : MonoBehaviour
     private Ability _ability;
     private Animator _animator;
     private static readonly int ActionSpeed = Animator.StringToHash("ActionSpeed");
-    
+    private static readonly int Cancel = Animator.StringToHash("Cancel");
+
     void Awake()
     {
         _ability = GetComponent<Ability>();
@@ -15,11 +17,24 @@ public class AbilityListener : MonoBehaviour
             Debug.LogWarning($"Animator parent missing animator ({name})");
         
         _ability.PhaseChanged += OnPhaseChanged;
+        _ability.Cancel += OnCancel;
     }
 
+    void OnCancel()
+    {
+        foreach (Ability.Phase phase in _ability.Phases)
+        {
+            if (phase.AnimationTrigger != string.Empty)
+                _animator.ResetTrigger(phase.AnimationTrigger);
+        }
+        _animator.SetTrigger(Cancel);
+    }
+    
     void OnPhaseChanged(Ability.Phase currentPhase)
     {
-        if (_animator && !string.IsNullOrEmpty(currentPhase.AnimationTrigger))
+        if (!_animator) return;
+
+        if (!string.IsNullOrEmpty(currentPhase?.AnimationTrigger))
         {
             _animator.SetTrigger(currentPhase.AnimationTrigger);
             // all actions default duration normalized to 1 sec.
