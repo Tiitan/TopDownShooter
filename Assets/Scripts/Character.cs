@@ -10,31 +10,31 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDamageable
 {
-    [SerializeField]
-    private float _speed;
+    [SerializeField] private float _speed;
+    [SerializeField] private float _animationSpeedMultiplier;
     
-    [SerializeField]
-    private float _maxHealthPoint;
+    [SerializeField] private float _maxHealthPoint;
     
-    [SerializeField]
     [Tooltip("Default 100, Should not be changed. Reference priority, " +
              "cancel ability casting of lower priority, " +
              "immobilise the character when casting an ability of higher priority.")]
-    private float _walkPriority = 100;
+    [SerializeField] private float _walkPriority = 100;
     
-    [SerializeField]
-    private int _team;
+    [SerializeField] private int _team;
     
     // TODO: temporary, create player equipment management
-    [SerializeField]
-    private AbilityObject _passiveAbilityObject;
+    [SerializeField] private AbilityObject _passiveAbilityObject;
 
+    [SerializeField] private Animator _animator;
+    
     private float _healthPoint;
     private CharacterController _characterController;
     private Ability _passiveAbility;
     private Transform _transform;
     private TargetManager _targetManager;
 
+
+    
     public float HealthPoint
     {
         get => _healthPoint;
@@ -62,6 +62,8 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
     public int Team => _team;
     public Vector3 Position => _transform.position;
     
+    public event Action<float, float> MoveUpdate;
+
     private void Awake()
     {
         _transform = transform;
@@ -79,35 +81,54 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         LevelManager.Instance.TargetManager.Register(this);
         LevelManager.Instance.OverlayGuiManager.Register(this);
     }
-
+    float _prevMoveSpeed = 0, _prevMoveAngle = 0;
+    
     public void Update()
     {
         bool hasPassiveAbility = _passiveAbility != null;
+
+        float moveSpeed = 0, moveAngle = 0;
+        
         // Move
         if (Direction != Vector3.zero && 
             (!hasPassiveAbility || _passiveAbility.CanMove || _passiveAbility.Priority < _walkPriority))
         {
             if (hasPassiveAbility && !_passiveAbility.CanMove)
                 _passiveAbility.CancelAbility();
-            _characterController.Move(Direction * (_speed * Time.deltaTime));
+            var motion = Direction * _speed;
+            _characterController.Move(motion * Time.deltaTime);
             _transform.rotation = Quaternion.LookRotation(Direction);
+
+            moveSpeed = motion.sqrMagnitude * _animationSpeedMultiplier;
         }
 
-        if (hasPassiveAbility && !_passiveAbility.Ready && _passiveAbility.FaceTarget && _passiveAbility.Target != null)
+        // look at target if required by ability state
+        if (hasPassiveAbility && !_passiveAbility.Ready && _passiveAbility.FaceTarget && (MonoBehaviour)_passiveAbility.Target != null)
         {
             _transform.LookAt(_passiveAbility.Target.Position, Vector3.up);
+            var lookDirection = (Quaternion.AngleAxis(transform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward).normalized;
+            moveAngle = Vector3.SignedAngle(lookDirection, Direction, Vector3.up);
         }
 
         //shoot
         if (hasPassiveAbility && _passiveAbility.Ready &&
             (Direction == Vector3.zero || _passiveAbility.CanStartInMovement))
         {
-            var target = _targetManager.GetCloserEnemy(_transform.position, _team);
+            ITargetable target = _targetManager.GetCloserEnemy(_transform.position, _team);
             if (target != null)
             {
                 _transform.LookAt(target.Position, Vector3.up);
                 _passiveAbility.UseAbility(target);
             }
+        }
+
+        // Update animation in CharacterListener if required
+        if (Math.Abs(_prevMoveSpeed - moveSpeed) > 0.05f || 
+            Math.Abs(_prevMoveAngle - moveAngle) > 0.05f)
+        {
+            MoveUpdate?.Invoke(moveSpeed, moveAngle);
+            _prevMoveSpeed = moveSpeed;
+            _prevMoveAngle = moveAngle;
         }
     }
 

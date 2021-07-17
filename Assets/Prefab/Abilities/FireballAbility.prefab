@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7356601904579116372}
   - component: {fileID: 7356601904579116379}
+  - component: {fileID: 1214020818539885877}
   m_Layer: 0
   m_Name: FireballAbility
   m_TagString: Untagged
@@ -44,23 +45,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _castPhase:
+    _animationTrigger: Cast
     _duration: 0.5
-    _canMove: 0
+    _canMove: 1
     _faceTarget: 1
     _priority: 50
   _executePhase:
-    _duration: 0
-    _canMove: 0
+    _animationTrigger: Execute
+    _duration: 0.4
+    _canMove: 1
     _faceTarget: 1
     _priority: 110
   _recoveryPhase:
-    _duration: 0.5
-    _canMove: 0
+    _animationTrigger: Recover
+    _duration: 0.8
+    _canMove: 1
     _faceTarget: 1
     _priority: 1000
   _cooldownPhase:
+    _animationTrigger: 
     _duration: 2
     _canMove: 1
     _faceTarget: 0
     _priority: -1
   _executePrefab: {fileID: 6745153029869264247, guid: 03591493fafcebf4ba35eb4b9251d8aa, type: 3}
+--- !u!114 &1214020818539885877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7356601904579116378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce561134ad0f7a44ab99bbc538431f06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

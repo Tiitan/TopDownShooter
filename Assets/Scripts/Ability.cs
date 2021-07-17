@@ -7,8 +7,9 @@ using UnityEngine;
 public class Ability : MonoBehaviour
 {
     [Serializable]
-    class Phase
+    public class Phase
     {
+        [SerializeField] private string _animationTrigger;
         [SerializeField] private float _duration;
         [SerializeField] private bool _canMove;
         [SerializeField] private bool _faceTarget;
@@ -18,6 +19,7 @@ public class Ability : MonoBehaviour
         public bool CanMove => _canMove;
         public bool FaceTarget => _faceTarget;
         public int Priority => _priority;
+        public string AnimationTrigger => _animationTrigger; // TODO cache animation
     }
     
     [SerializeField] private Phase _castPhase; // cast: interruptible
@@ -41,7 +43,16 @@ public class Ability : MonoBehaviour
     public ITargetable Target { get; private set; }
 
     private Coroutine _coroutine;
+
+    private float _currentPhaseStartTime;
+
+    private Animator _animator;
     
+    // Current state progress. NaN if _currentPhase is null
+    public float Progress => (Time.time - _currentPhaseStartTime) / (_currentPhase?.Duration ?? 0);
+    
+    public event Action<Phase> PhaseChanged;
+
     private void Awake()
     {
         _transform = transform;
@@ -53,6 +64,7 @@ public class Ability : MonoBehaviour
         if (_currentPhase != null)
             return false;
         Target = target;
+
         _coroutine = StartCoroutine(UseAbilityCoroutine());
         return true;
     }
@@ -70,6 +82,9 @@ public class Ability : MonoBehaviour
         for (int i = initialPhaseIndex; i < _phases.Count; i++)
         {
             _currentPhase =  _phases[i];
+            _currentPhaseStartTime = Time.time;
+            PhaseChanged?.Invoke(_currentPhase);
+
             if (_currentPhase.Duration > 0)
                 yield return new WaitForSeconds(_currentPhase.Duration);
             if (_currentPhase == _executePhase && _executePrefab != null)
