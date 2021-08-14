@@ -11,7 +11,7 @@ namespace Gui
         
         private IDamageable _damageable;
         
-        [UsedImplicitly]
+        [UsedImplicitly] // Called by OverlayGuiManager BroadcastMessage
         public void Init(IDamageable damageable)
         {
             _damageable = damageable;

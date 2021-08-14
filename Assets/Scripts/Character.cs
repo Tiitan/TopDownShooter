@@ -42,9 +42,19 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
     public int Energy
     {
         get => _energy;
-        set
+        private set
         {
             _energy = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public int MaxEnergy
+    {
+        get => _maxEnergy;
+        private set
+        {
+            _maxEnergy = value;
             OnPropertyChanged();
         }
     }
@@ -96,6 +106,7 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         LevelManager.Instance.TargetManager.Register(this);
         LevelManager.Instance.OverlayGuiManager.Register(this);
     }
+    
     float _prevMoveSpeed = 0, _prevMoveAngle = 0;
 
     void UpdateAbility()
