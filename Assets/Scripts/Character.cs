@@ -145,11 +145,7 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         if (_isStopped && Time.time > _energyRegenReferenceTime + _energyRegenDelay)
         {
             if (_energy < _maxEnergy)
-            {
                 Energy = _energy + 1;
-                Debug.Log($"[{name}] regen energy: {_energy}/{_maxEnergy}");
-
-            }
             _energyRegenReferenceTime = Time.time;
         }
         
@@ -214,6 +210,7 @@ public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDa
         Destroy(gameObject);
     }
     
+    [UsedImplicitly] // send message from Projectile and other damage sources.
     public void ApplyDamage(float damage)
     {
 

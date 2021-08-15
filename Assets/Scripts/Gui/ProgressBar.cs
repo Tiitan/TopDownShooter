@@ -11,6 +11,8 @@ namespace Gui
 
         private float _maxWidth;
         
+        public Image Image => _image;
+        
         void Awake()
         {
             _image = GetComponent<Image>();
