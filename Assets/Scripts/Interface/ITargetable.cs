@@ -8,5 +8,7 @@ namespace Interface
         int Team { get; }
         
         Vector3 Position { get; }
+
+        void ApplyDamage(float damage);
     }
 }

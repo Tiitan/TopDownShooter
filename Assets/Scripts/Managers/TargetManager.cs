@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Framework;
 using Interface;
 using UnityEngine;
 
@@ -47,8 +46,9 @@ namespace Managers
         /// </summary>
         /// <param name="sourcePosition">world position</param>
         /// <param name="sourceTeam">caller team, every other teams are included for lookup</param>
+        /// <param name="range">only consider potential targets below this range</param>
         /// <returns>closest enemy or null</returns>
-        public ITargetable GetCloserEnemy(Vector3 sourcePosition, int sourceTeam)
+        public ITargetable GetCloserEnemy(Vector3 sourcePosition, int sourceTeam, float range = float.MaxValue)
         {
             var targetDistance = float.PositiveInfinity;
             ITargetable closeEnemy = null;
@@ -73,7 +73,8 @@ namespace Managers
                     }
                 }
             }
-            return closeEnemy;
+
+            return targetDistance <= range ? closeEnemy : null;
         }
     }
 }

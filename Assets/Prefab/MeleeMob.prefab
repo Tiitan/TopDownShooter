@@ -122,7 +122,7 @@ MonoBehaviour:
   _maxHealthPoint: 100
   _walkPriority: 100
   _team: 0
-  _passiveAbilityObject: {fileID: 0}
+  _passiveAbilityObject: {fileID: 11400000, guid: 6a15123a4cd2a164089ba4320855ca98, type: 2}
   _animator: {fileID: 0}
   _energy: 5
   _energyRegenDelay: 2
@@ -138,6 +138,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0726af8ce6c8f88449e96830aefbb552, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _followMaxMove: 0.5
+  _recalculateDestinationPeriod: 0.2
 --- !u!195 &-470281525291455923
 NavMeshAgent:
   m_ObjectHideFlags: 0

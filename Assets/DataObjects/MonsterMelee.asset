@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47329bd6008e2e347a724dd2fec21809, type: 3}
+  m_Name: MonsterMelee
+  m_EditorClassIdentifier: 
+  _name: Monster melee
+  _icon: {fileID: 0}
+  _description: 
+  _abilityPrefab: {fileID: 3532684296087699639, guid: 90a873df6ca61154e9d7f7abeaa4efe5, type: 3}

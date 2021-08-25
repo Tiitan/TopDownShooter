@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using Characters;
 using Managers;
 using UnityEngine;
 using UnityEngine.UI;

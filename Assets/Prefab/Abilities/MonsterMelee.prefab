@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7356601904579116378
+--- !u!1 &3532684296087699639
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,24 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7356601904579116372}
-  - component: {fileID: 7356601904579116379}
-  - component: {fileID: 1214020818539885877}
-  - component: {fileID: -7665855927916261215}
+  - component: {fileID: 3532684296087699641}
+  - component: {fileID: 3532684296087699638}
+  - component: {fileID: 5172501074089691352}
+  - component: {fileID: 2555620241751756709}
   m_Layer: 0
-  m_Name: FireballAbility
+  m_Name: MonsterMelee
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7356601904579116372
+--- !u!4 &3532684296087699641
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7356601904579116378}
+  m_GameObject: {fileID: 3532684296087699639}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -33,38 +33,38 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7356601904579116379
+--- !u!114 &3532684296087699638
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7356601904579116378}
+  m_GameObject: {fileID: 3532684296087699639}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb3d6b2814899c145be618c29a4ae506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _range: 3.4028235e+38
-  _canUseImmobile: 0
-  _resourceCost: 1
-  _resourceType: Energy
+  _range: 1.5
+  _canUseImmobile: 1
+  _resourceCost: 0
+  _resourceType: 
   _castPhase:
-    _animationTrigger: Cast
-    _duration: 0.5
-    _canMove: 1
+    _animationTrigger: 
+    _duration: 0.2
+    _canMove: 0
     _faceTarget: 1
     _priority: 50
   _executePhase:
-    _animationTrigger: Execute
+    _animationTrigger: 
     _duration: 0.2
-    _canMove: 1
+    _canMove: 0
     _faceTarget: 1
     _priority: 110
   _recoveryPhase:
-    _animationTrigger: Recover
+    _animationTrigger: 
     _duration: 0.4
-    _canMove: 1
+    _canMove: 0
     _faceTarget: 1
     _priority: 1000
   _cooldownPhase:
@@ -76,8 +76,8 @@ MonoBehaviour:
   _onExecuteAbility:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: -7665855927916261215}
-        m_TargetAssemblyTypeName: Abilities.AbilityInstantiate, Assembly-CSharp
+      - m_Target: {fileID: 2555620241751756709}
+        m_TargetAssemblyTypeName: Abilities.AbilityDamage, Assembly-CSharp
         m_MethodName: ExecuteAbility
         m_Mode: 0
         m_Arguments:
@@ -88,28 +88,28 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1214020818539885877
+--- !u!114 &5172501074089691352
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7356601904579116378}
+  m_GameObject: {fileID: 3532684296087699639}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce561134ad0f7a44ab99bbc538431f06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-7665855927916261215
+--- !u!114 &2555620241751756709
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7356601904579116378}
+  m_GameObject: {fileID: 3532684296087699639}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 942d44f548a1349439fe528e36342b60, type: 3}
+  m_Script: {fileID: 11500000, guid: 02e982b9313bbbb4e9b9410fe6486b08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _executePrefab: {fileID: 6745153029869264247, guid: 03591493fafcebf4ba35eb4b9251d8aa, type: 3}
+  _damage: 10

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Enums;
@@ -17,6 +18,7 @@ namespace Managers
     {
         [SerializeField] private float _timeBeforeFirstWave = 1; 
         [SerializeField] private float _timeBetweenWaves = 3; 
+        [SerializeField] private float _gameOverDuration = 3; 
         
         private GameObject _player;
         public TargetManager TargetManager { get; private set; }
@@ -31,10 +33,11 @@ namespace Managers
         private LevelState _levelState;
 
         private List<ISpawner> _spawners;
-
         private readonly List<GameObject> _mobs = new List<GameObject>();
 
-        /// <summary>level state: Start, Wave, InterWave, Finish</summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>level state: Start, Wave, InterWave, Finish, PlayerDead</summary>
         public LevelState LevelState
         {
             get => _levelState;
@@ -151,8 +154,43 @@ namespace Managers
             SpawnNextWave();
         }
 
+        public void RegisterMob(GameObject mob)
+        {
+            _mobs.Add(mob);
+        }
+
+        public void UnRegisterMob(GameObject mob)
+        {
+            WaveMobKill += 1;
+            LevelMobKill += 1;
+            
+            _mobs.Remove(mob);
+            if (_mobs.Count == 0)
+                StartCoroutine(WaveOver());
+        }
+
+        public void OnPlayerDie()
+        {
+            StartCoroutine(GameOver());
+        }
+        
+        public void ExitTriggered(GameObject player)
+        {
+            if (player.CompareTag("Player") && _levelState == LevelState.Finish)
+            {
+                // TODO win logic
+                SceneManager.LoadScene("Menu");
+            }
+        }
+
         private void SpawnNextWave()
         {
+            if (LevelState != LevelState.InterWave && LevelState != LevelState.Start)
+            {
+                Debug.LogWarning($"LevelManager's SpawnNextWave in wrong state ({LevelState}).");
+                return; // Player died just before killing the last mob ?
+            }
+
             LevelState = LevelState.Wave;
             CurrentWave += 1;
 
@@ -172,23 +210,15 @@ namespace Managers
             }
         }
 
-        public void RegisterMob(GameObject mob)
-        {
-            _mobs.Add(mob);
-        }
-
-        public void UnRegisterMob(GameObject mob)
-        {
-            WaveMobKill += 1;
-            LevelMobKill += 1;
-            
-            _mobs.Remove(mob);
-            if (_mobs.Count == 0)
-                StartCoroutine(WaveOver());
-        }
-        
+        // Resharper disable Unity.PerformanceAnalysis
         private IEnumerator WaveOver()
         {
+            if (LevelState != LevelState.Wave)
+            {
+                Debug.LogWarning($"LevelManager's WaveOver. in wrong state ({LevelState}).");
+                yield break; // Player died just before killing the last mob ?
+            }
+            
             if (_currentWave >= _waveCount)
             {
                 Debug.Log("Last wave finished.");
@@ -202,17 +232,15 @@ namespace Managers
             SpawnNextWave();
         }
 
-        public void ExitTriggered(GameObject player)
+        private IEnumerator GameOver()
         {
-            if (player.CompareTag("Player") && _levelState == LevelState.Finish)
-            {
-                // TODO win logic
-                SceneManager.LoadScene("Menu");
-            }
+            LevelState = LevelState.PlayerDead;
+            Debug.Log("Game over.");
+            yield return new WaitForSeconds(_gameOverDuration);
+            // TODO loose logic
+            SceneManager.LoadScene("Menu");
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
+        
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
