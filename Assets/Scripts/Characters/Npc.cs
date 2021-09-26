@@ -48,10 +48,7 @@ namespace Characters
 
         private void Update()
         {
-            if (!_navMeshAgent.isStopped)
-                _character.Direction = _navMeshAgent.velocity;
-            else
-                _character.Direction = Vector3.zero;
+            _character.Direction = !_navMeshAgent.isStopped ? _navMeshAgent.velocity : Vector3.zero;
         }
 
         private void OnDie()
@@ -59,6 +56,10 @@ namespace Characters
             Debug.Log($"NPC {name} die");
             if (LevelManager.Instance != null)
                 LevelManager.Instance.UnRegisterMob(gameObject);
+            
+            // TODO: loot table
+            GameManager.Instance.Inventory.Add(Inventory.GoldCoinId, 1);
+            
             Destroy(gameObject);
         }
         
