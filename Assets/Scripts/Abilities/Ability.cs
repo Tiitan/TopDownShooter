@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Enums;
 using Interface;
 using UnityEngine;
 using UnityEngine.Events;
@@ -52,7 +53,6 @@ namespace Abilities
         public float Range => _range;
         public bool CanStartInMovement => _castPhase.CanMove;
         public int Priority => _currentPhase?.Priority ?? -1;
-        public bool CanMove => _currentPhase?.CanMove ?? true;
         public bool FaceTarget => _currentPhase?.FaceTarget ?? false;
         public bool Ready => _currentPhase == null;
         public bool OnCooldown => _currentPhase == _cooldownPhase;
@@ -77,6 +77,20 @@ namespace Abilities
             _phases = new List<Phase>() {_castPhase, _executePhase, _recoveryPhase, _cooldownPhase};
         }
 
+        /// <summary>
+        /// CanMove check
+        /// </summary>
+        /// <param name="movementPriority">movement priority compared to action priority, default 100</param>
+        /// <returns>CanMoveStatus (Allowed / RequireCancel / Forbidden)</returns>
+        public CanMoveStatus CanMove(float movementPriority)
+        {
+            if (_currentPhase?.CanMove ?? true)
+                return CanMoveStatus.Allowed;
+            if (_currentPhase.Priority < movementPriority)
+                return CanMoveStatus.RequireCancel;
+            return CanMoveStatus.Forbidden;
+        }
+        
         public bool UseAbility(ITargetable target, IResource resource)
         {
             if (_currentPhase != null)

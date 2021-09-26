@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Managers;
 using UnityEngine;
@@ -43,6 +44,14 @@ namespace Characters
                 yield return new WaitForSeconds(_recalculateDestinationPeriod);
             }
             // Player dead here. TODO: listen to player respawn event
+        }
+
+        private void Update()
+        {
+            if (!_navMeshAgent.isStopped)
+                _character.Direction = _navMeshAgent.velocity;
+            else
+                _character.Direction = Vector3.zero;
         }
 
         private void OnDie()

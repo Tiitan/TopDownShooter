@@ -12,14 +12,9 @@ namespace Characters
 {
     /// <summary>
     /// Character class used by players and NPC.
-    /// TODO: refactor update. move movement control into player/npc class ?
     /// </summary>
-    [RequireComponent(typeof(CharacterController))]
     public class Character : MonoBehaviour, INotifyPropertyChanged, ITargetable, IDamageable, IResource
     {
-        [SerializeField] private float _speed;
-        [SerializeField] private float _animationSpeedMultiplier;
-    
         [SerializeField] private float _maxHealthPoint;
     
         [Tooltip("Default 100, Should not be changed. Reference priority, " +
@@ -38,7 +33,7 @@ namespace Characters
         [SerializeField] private int _energyRegenDelay = 2; // second per energy point
     
         private float _healthPoint;
-        private CharacterController _characterController;
+        
         private Ability _passiveAbility;
         private Transform _transform;
         private TargetManager _targetManager;
@@ -46,6 +41,9 @@ namespace Characters
         private bool _isStopped;
         private int _maxEnergy;
 
+        public Ability PassiveAbility => _passiveAbility;
+        public float WalkPriority => _walkPriority;
+        
         public int Energy
         {
             get => _energy;
@@ -99,7 +97,6 @@ namespace Characters
         private void Awake()
         {
             _transform = transform;
-            _characterController = GetComponent<CharacterController>();
             _healthPoint = _maxHealthPoint;
             _maxEnergy = _energy;
         
@@ -117,31 +114,45 @@ namespace Characters
     
         float _prevMoveSpeed = 0, _prevMoveAngle = 0;
 
-        void UpdateAbility()
+        void UpdateAbility(out float moveAngle)
         {
-            // TODO refactor update
-        }
-    
-        public void Update()
-        {
-            bool hasPassiveAbility = _passiveAbility != null;
-
-            float moveSpeed = 0, moveAngle = 0;
-        
-            // Move
-            if (Direction != Vector3.zero && 
-                (!hasPassiveAbility || _passiveAbility.CanMove || _passiveAbility.Priority < _walkPriority))
-            {
-                if (hasPassiveAbility && !_passiveAbility.CanMove)
-                    _passiveAbility.TryCancel(_walkPriority);
-                var motion = Direction * _speed;
-                _characterController.Move(motion * Time.deltaTime);
+            moveAngle = 0;
+            if (Direction != Vector3.zero)
                 _transform.rotation = Quaternion.LookRotation(Direction);
 
-                moveSpeed = motion.sqrMagnitude * _animationSpeedMultiplier;
-                _isStopped = false;
+            // Cancel cast if stop moving and if movement required
+            if (Direction == Vector3.zero && !_passiveAbility.CanUseImmobile && _passiveAbility.Active)
+            {
+                _passiveAbility.TryCancel(_walkPriority);
+            }
+        
+            // look at target if required by ability state
+            if (!_passiveAbility.Ready && _passiveAbility.FaceTarget && (MonoBehaviour)_passiveAbility.Target != null)
+            {
+                _transform.LookAt(_passiveAbility.Target.Position, Vector3.up);
+                var lookDirection = (Quaternion.AngleAxis(transform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward).normalized;
+                moveAngle = Vector3.SignedAngle(lookDirection, Direction, Vector3.up);
             }
 
+            //shoot
+            if (_passiveAbility.Ready &&
+                (Direction != Vector3.zero && _passiveAbility.CanStartInMovement ||
+                 Direction == Vector3.zero && _passiveAbility.CanUseImmobile))
+            {
+                ITargetable target = _targetManager.GetCloserEnemy(_transform.position, _team, _passiveAbility.Range);
+                if (target != null)
+                {
+                    _transform.LookAt(target.Position, Vector3.up);
+                    _passiveAbility.UseAbility(target, this);
+                }
+            }
+        }
+
+        void UpdateEnergy()
+        {
+            if (Direction != Vector3.zero)
+                _isStopped = false;
+                
             // just stopped moving
             if (!_isStopped && Direction == Vector3.zero)
             {
@@ -156,34 +167,17 @@ namespace Characters
                     Energy = _energy + 1;
                 _energyRegenReferenceTime = Time.time;
             }
+        }
         
-            // Cancel cast if stop moving and if movement required
-            if (Direction == Vector3.zero && hasPassiveAbility && !_passiveAbility.CanUseImmobile && _passiveAbility.Active)
-            {
-                _passiveAbility.TryCancel(_walkPriority);
-            }
-        
-            // look at target if required by ability state
-            if (hasPassiveAbility && !_passiveAbility.Ready && _passiveAbility.FaceTarget && (MonoBehaviour)_passiveAbility.Target != null)
-            {
-                _transform.LookAt(_passiveAbility.Target.Position, Vector3.up);
-                var lookDirection = (Quaternion.AngleAxis(transform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward).normalized;
-                moveAngle = Vector3.SignedAngle(lookDirection, Direction, Vector3.up);
-            }
+        public void Update()
+        {
+            UpdateEnergy();
 
-            //shoot
-            if (hasPassiveAbility && _passiveAbility.Ready &&
-                (Direction != Vector3.zero && _passiveAbility.CanStartInMovement ||
-                 Direction == Vector3.zero && _passiveAbility.CanUseImmobile))
-            {
-                ITargetable target = _targetManager.GetCloserEnemy(_transform.position, _team, _passiveAbility.Range);
-                if (target != null)
-                {
-                    _transform.LookAt(target.Position, Vector3.up);
-                    _passiveAbility.UseAbility(target, this);
-                }
-            }
+            float moveAngle = 0;
+            if (_passiveAbility != null)
+                UpdateAbility(out moveAngle);
 
+            float moveSpeed = Direction.sqrMagnitude;
             // Update animation in CharacterListener if required
             if (Math.Abs(_prevMoveSpeed - moveSpeed) > 0.05f || 
                 Math.Abs(_prevMoveAngle - moveAngle) > 0.05f)

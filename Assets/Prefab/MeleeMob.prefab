@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 4069812698930886154}
   - component: {fileID: 4069812698930886157}
   - component: {fileID: 4069812698930886156}
-  - component: {fileID: 4069812698930886155}
   - component: {fileID: 5956353626234556128}
   - component: {fileID: -4954442353089275984}
   - component: {fileID: -470281525291455923}
+  - component: {fileID: 7159329724900222205}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: MeleeMob
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -87,24 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!143 &4069812698930886155
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4069812698930886159}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5956353626234556128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,8 +99,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ddcafcdd285dc0458204576f88122c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 10
-  _animationSpeedMultiplier: 0
   _maxHealthPoint: 100
   _walkPriority: 100
   _team: 0
@@ -154,7 +134,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 1.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -162,6 +142,20 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &7159329724900222205
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4069812698930886159}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8293672830865424735
 GameObject:
   m_ObjectHideFlags: 0

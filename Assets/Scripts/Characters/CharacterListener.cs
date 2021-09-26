@@ -9,6 +9,8 @@ namespace Characters
     [RequireComponent(typeof(Character))]
     public class CharacterListener : MonoBehaviour
     {
+        [SerializeField] private float _animationSpeedMultiplier;
+
         private Character _character;
         private Animator _animator;
         private static readonly int MoveSpeed = Animator.StringToHash("MoveSpeed");
@@ -28,7 +30,7 @@ namespace Characters
         {
             if (_animator)
             {
-                _animator.SetFloat(MoveSpeed, speed);
+                _animator.SetFloat(MoveSpeed, speed * _animationSpeedMultiplier);
                 _animator.SetFloat(MoveAngle, angle);
             }
         }
