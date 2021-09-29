@@ -1983,7 +1983,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0eff8fa20a0c224784e7afeae44e746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceId: GoldCoin
+  resourceId: 0
 --- !u!1 &1282067749
 GameObject:
   m_ObjectHideFlags: 0
@@ -3233,7 +3233,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0eff8fa20a0c224784e7afeae44e746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceId: Boost
+  resourceId: 1
 --- !u!1 &1932856989
 GameObject:
   m_ObjectHideFlags: 0

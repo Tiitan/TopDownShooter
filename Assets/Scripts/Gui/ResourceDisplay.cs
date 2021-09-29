@@ -1,8 +1,6 @@
-using System.ComponentModel;
 using Managers;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Gui
 {
@@ -14,7 +12,7 @@ namespace Gui
     [RequireComponent(typeof(TMP_Text))]
     public class ResourceDisplay : MonoBehaviour
     {
-        [SerializeField] private string resourceId;
+        [SerializeField] private int resourceId;
 
         private TMP_Text _text;
         private Inventory _inventory;
@@ -27,20 +25,21 @@ namespace Gui
         void Start()
         {
             _inventory = GameManager.Instance.Inventory;
-            _inventory.PropertyChanged += InventoryOnPropertyChanged;
+            _inventory.InventoryChanged += OnInventoryChanged;
             _text.text = _inventory.GetItem(resourceId).ToString();
         }
 
         private void OnDestroy()
         {
             if (_inventory)
-                _inventory.PropertyChanged -= InventoryOnPropertyChanged;
+                _inventory.InventoryChanged -= OnInventoryChanged;
         }
 
-        private void InventoryOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnInventoryChanged(object sender, (int, int) item)
         {
-            if (e.PropertyName == resourceId)
-                _text.text = _inventory.GetItem(resourceId).ToString();
+            (int itemId, int itemCount) = item;
+            if (itemId == resourceId)
+                _text.text = itemCount.ToString();
         }
     }
 }
