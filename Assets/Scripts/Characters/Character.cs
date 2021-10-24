@@ -196,7 +196,14 @@ namespace Characters
                 LevelManager.Instance.OverlayGuiManager.UnRegister(this);
             }
         }
-    
+
+        public int RegenEnergy(int value)
+        {
+            value = Mathf.Clamp(value, 0, _maxEnergy - _energy);
+            Energy = _energy + value;
+            return value;
+        }
+
         public bool TryConsumeResource(string resourceType, int cost)
         {
             // TODO other resources
@@ -211,9 +218,7 @@ namespace Characters
         [UsedImplicitly] // send message from Projectile and other damage sources.
         public void ApplyDamage(float damage)
         {
-            HealthPoint -= damage;
-            if (HealthPoint <= 0)
-                HealthPoint = 0;
+            HealthPoint = Mathf.Clamp(HealthPoint - damage, 0, _maxHealthPoint);
             Debug.Log($"[{name}] Damage: {damage} ({_healthPoint}/{_maxHealthPoint})");
 
             if (HealthPoint == 0)

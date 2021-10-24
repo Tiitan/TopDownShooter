@@ -120,6 +120,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _followMaxMove: 0.5
   _recalculateDestinationPeriod: 0.2
+  _lootTable: {fileID: 11400000, guid: b229a0b379d1a1c49b3f4151c0e6ee58, type: 2}
+  _lootRadius: 1
 --- !u!195 &-470281525291455923
 NavMeshAgent:
   m_ObjectHideFlags: 0
