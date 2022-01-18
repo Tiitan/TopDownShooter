@@ -19,6 +19,7 @@ namespace Managers
         [SerializeField] private float _timeBeforeFirstWave = 1; 
         [SerializeField] private float _timeBetweenWaves = 3; 
         [SerializeField] private float _gameOverDuration = 3; 
+        [SerializeField] private GameObject _pausePanel; 
         
         private GameObject _player;
         public TargetManager TargetManager { get; private set; }
@@ -232,19 +233,40 @@ namespace Managers
             SpawnNextWave();
         }
 
-        private IEnumerator GameOver()
+        private IEnumerator GameOver(bool skipDelay = false)
         {
             LevelState = LevelState.PlayerDead;
             Debug.Log("Game over.");
-            yield return new WaitForSeconds(_gameOverDuration);
+            if (!skipDelay)
+                yield return new WaitForSeconds(_gameOverDuration);
             // TODO loose logic
             SceneManager.LoadScene("Menu");
         }
-        
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Pause(bool pause)
+        {
+            Time.timeScale = pause ? 0 : 1;
+            _pausePanel.SetActive(pause);
+        }
+
+        // Called by "Leave" button in pause panel. Trigger an immediate game over
+        public void LeaveLevelButton()
+        {
+            Pause(false);
+            StartCoroutine(GameOver(skipDelay: true));
+        }
+        
+        // Called when The game is minimized and restored. open the pause menu but don't auto restart the game.
+        void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus)
+                Pause(true);
         }
     }
 }
